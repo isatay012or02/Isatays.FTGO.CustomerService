@@ -1,13 +1,14 @@
 ﻿using Asp.Versioning;
+using Isatays.FTGO.CustomerService.Api.Models;
+using Isatays.FTGO.CustomerService.Core.Customers;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Isatays.FTGO.CustomerService.Api.Controllers;
 
 /// <summary>
-/// Cotroller special for foods
+/// Cotroller for Customers
 /// </summary>
-[Route("api/[controller]")]
-[Route("api/v{version:apiVersion}/consumer")]
+[Route("api/v{version:apiVersion}/customer")]
 [ApiVersion("1.0")]
 public class CustomerController : BaseController
 {
@@ -18,9 +19,26 @@ public class CustomerController : BaseController
 		_logger = logger;
 	}
 
-	[HttpPost("check-consumer")]
-	public async Task<IActionResult> CheckConsumer()
+	[HttpPost("verify-customer/{id}")]
+	public async Task<IActionResult> VerifyCustomer([FromBody] VerifyCustomerRequest request)
 	{
-		return Ok();
+		var scope = new Dictionary<string, object>
+		{
+			{ "Id", request.Id },
+			{ "Name", request.Name },
+			{ "Email", request.Email }
+		};
+		using (_logger.BeginScope(scope))
+		{
+            _logger.LogInformation("Запрос на проверку заказчик");
+            var result = await Sender.Send(new VerifyCustomerCommand(request.Id, request.Name, request.Email));
+
+            if (result.IsFailed)
+                return ProblemResponse(result.Error);
+
+            _logger.LogInformation("Заказчик успешно проверен");
+
+            return Ok(result.Value);
+        }
 	}
 }

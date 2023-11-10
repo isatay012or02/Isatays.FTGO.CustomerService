@@ -16,5 +16,5 @@ public class Customer
     public string Email { get; private set; } = string.Empty;
 
     [Column("isAvailable")]
-    public bool IsAvailable { get; private set; }
+    public bool IsAvailable { get; set; }
 }
