@@ -1,4 +1,5 @@
 ﻿using Isatays.FTGO.CustomerService.Core.Common.Exceptions;
+using Isatays.FTGO.CustomerService.Core.Entities;
 using Isatays.FTGO.CustomerService.Core.Interfaces;
 using KDS.Primitives.FluentResult;
 using MediatR;
@@ -7,7 +8,7 @@ using Polly;
 
 namespace Isatays.FTGO.CustomerService.Core.Customers;
 
-public class VerifyCustomerCommandHandler : IRequestHandler<VerifyCustomerCommand, Result<bool>>
+public class VerifyCustomerCommandHandler : IRequestHandler<VerifyCustomerCommand, Result<Customer?>>
 {
 	private readonly IDataContext _dataContext;
 	private readonly ILogger<VerifyCustomerCommandHandler> _logger;
@@ -17,27 +18,23 @@ public class VerifyCustomerCommandHandler : IRequestHandler<VerifyCustomerComman
 		ILogger<VerifyCustomerCommandHandler> logger,
 		ICustomerService customerService)
 	{
-		_dataContext = dataContext ?? throw new ArgumentNullException(nameof(dataContext));
-		_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-		_customerService = customerService ?? throw new ArgumentNullException(nameof(customerService));
+		_dataContext = dataContext;
+		_logger = logger;
+		_customerService = customerService;
 	}
 
-	public async Task<Result<bool>> Handle(VerifyCustomerCommand request, CancellationToken cancellationToken)
+	public async Task<Result<Customer?>> Handle(VerifyCustomerCommand request, CancellationToken cancellationToken)
 	{
-		var circuitBreaker = Policy.Handle<DatabaseException>().CircuitBreaker(3, TimeSpan.FromMinutes(1));
-		Result<bool> result = null!;
-
 		try
 		{
-			circuitBreaker.Execute(async () =>
-				result = await _customerService.VerifyCustomer(request.Id, request.Name, request.Email)
-			);
-        }
+			var result = await _customerService.VerifyCustomer(request.Id, request.Name, request.Email, request.PhoneNumber);
+			
+			return Result.Success(result.Value);
+		}
 		catch (DatabaseException ex)
 		{
 			_logger.LogError(ex.Message);
+			return Result.Failure<Customer?>(new Error("", ex.Message));
 		}
-
-        return result.Value;
     }
 }

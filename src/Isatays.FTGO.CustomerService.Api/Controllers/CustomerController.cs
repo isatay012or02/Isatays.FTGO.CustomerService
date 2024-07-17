@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Isatays.FTGO.CustomerService.Api.Controllers;
 
 /// <summary>
-/// Cotroller for Customers
+/// Controller for Customers
 /// </summary>
 [Route("api/v{version:apiVersion}/customer")]
 [ApiVersion("1.0")]
@@ -31,7 +31,7 @@ public class CustomerController : BaseController
 		using (_logger.BeginScope(scope))
 		{
             _logger.LogInformation("Запрос на проверку заказчик");
-            var result = await Sender.Send(new VerifyCustomerCommand(request.Id, request.Name, request.Email));
+            var result = await Sender.Send(new VerifyCustomerCommand(request.Id, request.Name, request.Email, request.PhoneNumber));
 
             if (result.IsFailed)
                 return ProblemResponse(result.Error);

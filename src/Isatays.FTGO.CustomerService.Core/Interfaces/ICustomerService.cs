@@ -5,5 +5,5 @@ namespace Isatays.FTGO.CustomerService.Core.Interfaces;
 
 public interface ICustomerService
 {
-    Task<Result<bool>> VerifyCustomer(Guid id, string name, string email);
+    Task<Result<Customer?>> VerifyCustomer(int id, string name, string email, string phoneNumber);
 }

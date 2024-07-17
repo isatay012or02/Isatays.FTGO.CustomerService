@@ -1,4 +1,5 @@
-﻿using Isatays.FTGO.CustomerService.Core.Interfaces;
+﻿using Isatays.FTGO.CustomerService.Core.Entities;
+using Isatays.FTGO.CustomerService.Core.Interfaces;
 using KDS.Primitives.FluentResult;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
@@ -14,15 +15,16 @@ public class CustomerService : ICustomerService
 		_dataContext = dataContext;
 	}
 
-	public async Task<Result<bool>> VerifyCustomer(Guid id, string name, string email)
+	public async Task<Result<Customer?>> VerifyCustomer(int id, string name, string email, string phoneNumber)
 	{
 		var result = await _dataContext
 							.Customers
-							.Where(c => c.Id == id
+							.Where(c => c.CustomerId == id
 							&& c.Name == name
-							&& c.Email == email)
+							&& c.Email == email
+							&& c.PhoneNumber == phoneNumber)
 							.FirstOrDefaultAsync();
 
-		return Result.Success(result.IsAvailable);
+		return Result.Success(result);
 	}
 }
