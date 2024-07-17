@@ -7,14 +7,11 @@ namespace Isatays.FTGO.CustomerService.Core.Entities;
 public class Customer
 {
     [Key]
-    public Guid Id { get; private set; }
-
-    [Column("name")]
-    public string Name { get; private set; } = string.Empty;
-
-    [Column("email")]
-    public string Email { get; private set; } = string.Empty;
-
-    [Column("isAvailable")]
-    public bool IsAvailable { get; set; }
+    public int CustomerId { get; set; }
+    
+    public string Name { get; set; }
+    
+    public string Email { get; set; }
+    
+    public string PhoneNumber { get; set; }
 }
